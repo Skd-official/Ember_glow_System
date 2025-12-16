@@ -1,0 +1,432 @@
+/* ============================================================================
+   烟火漫游启动页 - 东方夜雀食堂风格 CSS
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap');
+
+/* ============================================================================
+   全局样式
+   ============================================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ============================================================================
+   主容器
+   ============================================================================ */
+
+.landing-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #0a0a12;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* ============================================================================
+   Canvas 烟花层
+   ============================================================================ */
+
+.fireworks-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* ============================================================================
+   装饰性边框
+   ============================================================================ */
+
+.decorative-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.corner {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border: 3px solid;
+  border-image: linear-gradient(135deg, #d4a574 0%, #8b5a3c 50%, #d4a574 100%) 1;
+}
+
+.corner-tl {
+  top: 20px;
+  left: 20px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-tr {
+  top: 20px;
+  right: 20px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-bl {
+  bottom: 20px;
+  left: 20px;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-br {
+  bottom: 20px;
+  right: 20px;
+  border-left: none;
+  border-top: none;
+}
+
+/* ============================================================================
+   内容区域
+   ============================================================================ */
+
+.content-wrapper {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  padding: 60px 20px;
+}
+
+/* ============================================================================
+   标题区域 - 东方夜雀食堂风格
+   ============================================================================ */
+
+.title-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 80px;
+}
+
+/* 装饰花瓣 - 初始隐藏，等待JS触发显示 */
+.title-decoration {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: translateY(-30px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.title-decoration.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.petal {
+  font-size: 24px;
+  color: #f8b4c4;
+  text-shadow: 0 0 10px rgba(248, 180, 196, 0.6);
+}
+
+.title-decoration.visible .petal {
+  animation: floatPetal 3s ease-in-out infinite;
+}
+
+.petal-1 { animation-delay: 0s; }
+.petal-2 { animation-delay: 0.5s; color: #ffd4e0; }
+.petal-3 { animation-delay: 1s; }
+
+@keyframes floatPetal {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(10deg); }
+}
+
+/* 主标题 - 初始隐藏 */
+.title-main {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.title-main.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.title-char {
+  font-family: 'Noto Serif SC', '华文行楷', '楷体', serif;
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  font-weight: 700;
+  color: #ffecd2;
+  text-shadow:
+    0 0 20px rgba(255, 200, 150, 0.8),
+    0 0 40px rgba(255, 150, 100, 0.5),
+    3px 3px 0 #8b4513,
+    -1px -1px 0 #d4a574;
+  opacity: 0;
+}
+
+/* 标题字符依次出现动画 - 仅在.visible状态下触发 */
+.title-main.visible .title-char {
+  animation: charAppear 1s ease-out forwards;
+}
+
+.title-main.visible .char-1 { animation-delay: 0s; }
+.title-main.visible .char-2 { animation-delay: 0.3s; }
+.title-main.visible .char-3 { animation-delay: 0.6s; }
+.title-main.visible .char-4 { animation-delay: 0.9s; }
+
+@keyframes charAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.8);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* 英文副标题区域 - 初始隐藏 */
+.title-sub {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+  opacity: 0;
+  transform: translateY(-15px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.title-sub.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sub-line {
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #d4a574, transparent);
+  transition: width 1s ease 0.3s;
+}
+
+.title-sub.visible .sub-line {
+  width: 60px;
+}
+
+.title-en {
+  font-family: 'Georgia', serif;
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  color: #d4a574;
+  text-shadow: 0 0 15px rgba(212, 165, 116, 0.5);
+}
+
+/* ============================================================================
+   按钮区域 - 东方夜雀食堂风格
+   ============================================================================ */
+
+.button-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.button-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.menu-button {
+  position: relative;
+  min-width: 200px;
+  padding: 12px 40px;
+  background: linear-gradient(180deg, #f5e6d3 0%, #e8d4bc 50%, #d4c4a8 100%);
+  border: 2px solid #8b5a3c;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.menu-button.active {
+  opacity: 1;
+  pointer-events: auto;
+  animation: buttonGlow 2s ease-in-out infinite;
+}
+
+@keyframes buttonGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(212, 165, 116, 0.6);
+  }
+}
+
+.menu-button::before,
+.menu-button::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #8b5a3c;
+}
+
+.menu-button::before {
+  top: -4px;
+  left: -4px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.menu-button::after {
+  bottom: -4px;
+  right: -4px;
+  border-left: none;
+  border-top: none;
+}
+
+.button-text {
+  font-family: 'Noto Serif SC', '宋体', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #5a3825;
+  letter-spacing: 0.2em;
+}
+
+.menu-button:hover {
+  background: linear-gradient(180deg, #fff8f0 0%, #f5e6d3 50%, #e8d4bc 100%);
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(212, 165, 116, 0.5);
+}
+
+.menu-button:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================================
+   底部提示
+   ============================================================================ */
+
+.footer-hint {
+  position: absolute;
+  bottom: 40px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.9rem;
+  color: rgba(212, 165, 116, 0.6);
+  letter-spacing: 0.1em;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.footer-hint.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================================
+   响应式设计
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .title-char {
+    font-size: 2.5rem;
+  }
+
+  .title-en {
+    font-size: 0.9rem;
+  }
+
+  .corner {
+    width: 50px;
+    height: 50px;
+  }
+
+  .menu-button {
+    min-width: 160px;
+    padding: 10px 30px;
+  }
+
+  .button-text {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-char {
+    font-size: 2rem;
+  }
+
+  .petal {
+    font-size: 18px;
+  }
+
+  .corner {
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .title-char {
+    font-size: 6rem;
+  }
+
+  .title-en {
+    font-size: 2rem;
+  }
+
+  .menu-button {
+    min-width: 250px;
+    padding: 15px 50px;
+  }
+
+  .button-text {
+    font-size: 1.3rem;
+  }
+}
+
+/* 动画性能优化 */
+@media (prefers-reduced-motion: reduce) {
+  .title-char,
+  .petal,
+  .content-wrapper {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
