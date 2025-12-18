@@ -54,31 +54,41 @@ export function convertToLunar(gongLi: Date): {
     theDate += 1
   }
 
+  console.log(`[Lunar Debug] 开始转换: 阳历=${curYear}年${curMonth}月${curDay}日 → 计算天数=${theDate}`)
+
   // 计算农历年月日
   let isEnd = 0
   let m = 0
   let isLeapMonth = false
+  let k = 0
+  let n = 0
 
   while (true) {
-    let k = LUNAR_DATA[m] < 4095 ? 11 : 12
-    let n = k
+    // 判断该年是平年还是闰年
+    k = LUNAR_DATA[m] < 4095 ? 11 : 12
+    n = k
+
+    console.log(`[Lunar Debug] 检查第${m}组数据 (${LUNAR_DATA[m]}): k=${k}, 需要处理 ${k + 1} 个月份`)
 
     while (true) {
       if (n < 0) break
 
-      // 获取 LUNAR_DATA[m] 的第 n 个二进制位
+      // 按位获取该月是否为大月(30天)还是小月(29天)
       let bit = LUNAR_DATA[m]
       for (let i = 0; i < n; i++) {
         bit = Math.floor(bit / 2)
       }
       bit = bit % 2
 
-      if (theDate <= 29 + bit) {
+      const daysInMonth = 29 + bit
+
+      if (theDate <= daysInMonth) {
         isEnd = 1
+        console.log(`[Lunar Debug] 找到! 月=${k - n + 1}, 日=${theDate}, 月长=${daysInMonth}天`)
         break
       }
 
-      theDate -= 29 + bit
+      theDate -= daysInMonth
       n -= 1
     }
 
@@ -86,27 +96,32 @@ export function convertToLunar(gongLi: Date): {
     m += 1
   }
 
-  let lunarYear = 1921 + m
-  let lunarMonth = LUNAR_DATA[m] < 4095 ? 11 - m : 12 - m
-  let lunarDay = theDate
+  const lunarYear = 1921 + m
+  const lunarMonth = k - n + 1
+  const lunarDay = theDate
+
+  console.log(`[Lunar Debug] 计算结果: ${lunarYear}年${lunarMonth}月${lunarDay}日 (m=${m}, k=${k}, n=${n})`)
 
   // 处理闰月逻辑
+  let finalMonth = lunarMonth
   if (LUNAR_DATA[m] >= 4095) {
     const leapMonth = Math.floor(LUNAR_DATA[m] / 65536) + 1
+    console.log(`[Lunar Debug] 该年有闰月: 闰月=${leapMonth}`)
 
-    if (lunarMonth === leapMonth) {
+    if (finalMonth === leapMonth) {
       isLeapMonth = true
-      lunarMonth = -lunarMonth  // 负数表示闰月
-    } else if (lunarMonth > leapMonth) {
-      lunarMonth -= 1
+      console.log(`[Lunar Debug] 这是闰月!`)
+    } else if (finalMonth > leapMonth) {
+      finalMonth -= 1
+      console.log(`[Lunar Debug] 闰月后的月份，调整: ${lunarMonth} → ${finalMonth}`)
     }
   }
 
-  lunarMonth = Math.abs(lunarMonth)
+  console.log(`[Lunar Debug] 最终: ${lunarYear}年${finalMonth}月${lunarDay}日 ${isLeapMonth ? '(闰月)' : ''}`)
 
   return {
     year: lunarYear,
-    month: lunarMonth,
+    month: finalMonth,
     day: lunarDay,
     isLeapMonth
   }
@@ -125,6 +140,7 @@ export function detectChineseHolidayByLunar(date: Date): {
   effectType: string
 } | null {
   const lunar = convertToLunar(date)
+  console.log(`[Lunar Debug] 阳历 ${date.toLocaleDateString()} 转换为农历: 年=${lunar.year} 月=${lunar.month} 日=${lunar.day} 闰=${lunar.isLeapMonth}`)
 
   // 农历节日判断
   const lunarHolidayMap: Record<string, {
@@ -194,12 +210,14 @@ export function detectChineseHolidayByLunar(date: Date): {
   const holiday = lunarHolidayMap[key]
 
   if (holiday) {
+    console.log(`[Lunar Debug] ✅ 匹配到节日: key=${key} => ${holiday.name}`)
     return holiday
   }
 
   // 检查除夕（农历十二月最后一天）
   const nextLunar = convertToLunar(new Date(date.getTime() + 24 * 60 * 60 * 1000))
   if (nextLunar.month === 1 && nextLunar.day === 1 && lunar.month === 12) {
+    console.log('[Lunar Debug] ✅ 匹配到除夕（农历12月最后一天）')
     return {
       name: '除夕',
       lunarDate: '十二月最后一天',
@@ -213,6 +231,7 @@ export function detectChineseHolidayByLunar(date: Date): {
     }
   }
 
+  console.log(`[Lunar Debug] ❌ 未匹配到任何节日 (key=${key})`)
   return null
 }
 

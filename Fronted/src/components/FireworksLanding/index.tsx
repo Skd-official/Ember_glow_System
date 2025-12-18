@@ -30,11 +30,14 @@ export const FireworksLanding: React.FC<{
   const [showHint, setShowHint] = useState(false)
   // 按钮出现即可交互
   const [canInteract, setCanInteract] = useState(false)
-  // 加载提示是否显示（烟花开始后隐藏）
-  const [showLoading, setShowLoading] = useState(true)
 
   // 初始化烟花系统
   useEffect(() => {
+    // 隐藏初始加载提示
+    if (window.hideLoadingTip) {
+      window.hideLoadingTip()
+    }
+
     if (!canvasRef.current) return
 
     const canvas = canvasRef.current
@@ -53,9 +56,6 @@ export const FireworksLanding: React.FC<{
 
     startTimeRef.current = performance.now()
 
-    // 烟花开始后立即隐藏加载提示
-    setTimeout(() => setShowLoading(false), 500)      // 0.5秒后隐藏加载提示
-    
     // UI元素依次出现动画（总计约8秒）
     setTimeout(() => setShowDecoration(true), 1000)   // 1秒后：花瓣装饰
     setTimeout(() => setShowTitle(true), 2500)        // 2.5秒后：主标题
@@ -184,16 +184,10 @@ export const FireworksLanding: React.FC<{
           </button>
         </div>
 
-        {/* 底部提示 - 加载完成后显示操作提示，加载中显示加载文字 */}
-        {showLoading ? (
-          <div className="footer-hint visible loading-hint">
-            系统加载中...
-          </div>
-        ) : (
-          <div className={`footer-hint ${showHint ? 'visible' : ''}`}>
-            按 Enter 或点击按钮进入
-          </div>
-        )}
+        {/* 底部提示 */}
+        <div className={`footer-hint ${showHint ? 'visible' : ''}`}>
+          {canInteract ? '按 Enter 或点击按钮进入' : '系统加载中...'}
+        </div>
       </div>
     </div>
   )

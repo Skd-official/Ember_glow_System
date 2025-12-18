@@ -26,12 +26,13 @@ export function generateFireworkSequence(
 ): FireworkSequence {
   const holiday = detectHoliday()
 
-  // 起承转合的烟花数量分配
-  const totalFireworks = 16 + Math.floor(Math.random() * 6)  // 16-21朵
+  // 起承转合的烟花数量分配（已进一步增加总数）
+  const totalFireworks = 20 + Math.floor(Math.random() * 9)  // 20-28朵（进一步增加）
 
   // 决定是否显示文字烟花
-  // 节日时80%概率显示，平时30%概率显示
-  const showText = holiday ? Math.random() < 0.8 : Math.random() < 0.3
+  // 节日：每轮都显示（强制100%）
+  // 平时：每轮30%概率显示文字
+  const showText = holiday ? true : Math.random() < 0.3
 
   // 文字烟花位置：开场后第2-3朵，或高潮期间
   let textFireworkIndex = -1
@@ -39,11 +40,12 @@ export function generateFireworkSequence(
 
   if (showText) {
     // 随机选择在开场(索引2-3)或高潮期间(索引8-12)显示
-    const isOpeningText = Math.random() < 0.4
+    // 每轮都至少有一个文字烟花
+    const isOpeningText = Math.random() < 0.5
     if (isOpeningText) {
-      textFireworkIndex = 2 + Math.floor(Math.random() * 2)  // 2-3
+      textFireworkIndex = 1 + Math.floor(Math.random() * 3)  // 1-3（确保有文字）
     } else {
-      textFireworkIndex = 8 + Math.floor(Math.random() * 5)  // 8-12
+      textFireworkIndex = 7 + Math.floor(Math.random() * 6)  // 7-12
     }
 
     // 选择显示的文字
@@ -78,10 +80,11 @@ export function generateFireworks(
   const fireworks: Firework[] = []
   const total = sequence.totalFireworks
 
-  // 阶段划分
+  // 阶段划分（已优化数量分配）
   const openingCount = 3 + Math.floor(Math.random() * 2)    // 3-4朵
   const buildingCount = 4 + Math.floor(Math.random() * 2)   // 4-5朵
-  const climaxCount = 5 + Math.floor(Math.random() * 2)     // 5-6朵
+  // 高潮期增加到10-12朵（更丰富）
+  const climaxCount = 10 + Math.floor(Math.random() * 3)    // 10-12朵
   const finaleCount = total - openingCount - buildingCount - climaxCount  // 剩余
 
   let currentTime = startTime
@@ -89,11 +92,22 @@ export function generateFireworks(
 
   // ============ 开场阶段：一朵一朵，间隔较长 ============
   for (let i = 0; i < openingCount; i++) {
-    const firework = createFirework(`fw-${index}`, currentTime, canvasWidth, canvasHeight)
+    const isText = index === sequence.textFireworkIndex
+    const isHoliday = sequence.holiday.detected && isText
 
-    // 检查是否是文字烟花
-    if (index === sequence.textFireworkIndex && sequence.displayText) {
-      firework.type = 'text'
+    const firework = createFirework(
+      `fw-${index}`,
+      currentTime,
+      canvasWidth,
+      canvasHeight,
+      Date.now(),
+      isText,                           // 是否文字烟花
+      isHoliday,                        // 是否节日烟花
+      isHoliday ? sequence.holiday.effectType : undefined  // 节日效果类型
+    )
+
+    // 检查是否是文字烟花，设置显示文字
+    if (isText && sequence.displayText) {
       firework.displayText = sequence.displayText
     }
 
@@ -105,10 +119,21 @@ export function generateFireworks(
 
   // ============ 过渡阶段：开始重叠，间隔缩短 ============
   for (let i = 0; i < buildingCount; i++) {
-    const firework = createFirework(`fw-${index}`, currentTime, canvasWidth, canvasHeight)
+    const isText = index === sequence.textFireworkIndex
+    const isHoliday = sequence.holiday.detected && isText
 
-    if (index === sequence.textFireworkIndex && sequence.displayText) {
-      firework.type = 'text'
+    const firework = createFirework(
+      `fw-${index}`,
+      currentTime,
+      canvasWidth,
+      canvasHeight,
+      Date.now(),
+      isText,
+      isHoliday,
+      isHoliday ? sequence.holiday.effectType : undefined
+    )
+
+    if (isText && sequence.displayText) {
       firework.displayText = sequence.displayText
     }
 
@@ -120,10 +145,21 @@ export function generateFireworks(
 
   // ============ 高潮阶段：密集重叠，多朵同时在空中 ============
   for (let i = 0; i < climaxCount; i++) {
-    const firework = createFirework(`fw-${index}`, currentTime, canvasWidth, canvasHeight)
+    const isText = index === sequence.textFireworkIndex
+    const isHoliday = sequence.holiday.detected && isText
 
-    if (index === sequence.textFireworkIndex && sequence.displayText) {
-      firework.type = 'text'
+    const firework = createFirework(
+      `fw-${index}`,
+      currentTime,
+      canvasWidth,
+      canvasHeight,
+      Date.now(),
+      isText,
+      isHoliday,
+      isHoliday ? sequence.holiday.effectType : undefined
+    )
+
+    if (isText && sequence.displayText) {
       firework.displayText = sequence.displayText
     }
 
@@ -136,16 +172,22 @@ export function generateFireworks(
   // ============ 结尾阶段：多朵几乎同时发射 ============
   const finaleStartTime = currentTime + 500  // 稍微等待一下
   for (let i = 0; i < finaleCount; i++) {
+    const isText = index === sequence.textFireworkIndex
+    const isHoliday = sequence.holiday.detected && isText
+
     // 结尾烟花在很短的时间窗口内发射（0.1-0.3秒间隔）
     const firework = createFirework(
       `fw-${index}`,
       finaleStartTime + i * (100 + Math.random() * 200),
       canvasWidth,
-      canvasHeight
+      canvasHeight,
+      Date.now(),
+      isText,
+      isHoliday,
+      isHoliday ? sequence.holiday.effectType : undefined
     )
 
-    if (index === sequence.textFireworkIndex && sequence.displayText) {
-      firework.type = 'text'
+    if (isText && sequence.displayText) {
       firework.displayText = sequence.displayText
     }
 
@@ -203,17 +245,14 @@ export function updateFireworks(fireworks: Firework[], currentTime: number): voi
       // 根据烟花类型生成粒子
       if (firework.type === 'text' && firework.displayText) {
         // 文字烟花：生成文字形状的粒子
-        const canvasW = _canvasWidth || window.innerWidth
-        const canvasH = _canvasHeight || window.innerHeight
         const config = getTextFireworkConfig(
           firework.displayText,
-          canvasW,
-          canvasH
+          _canvasWidth || window.innerWidth,
+          _canvasHeight || window.innerHeight
         )
-        // 【重要】文字烟花固定在屏幕中心上方，不使用烟花的随机爆炸位置
-        // 这样文字才能清晰显示在标题上方
-        config.centerX = canvasW / 2  // 水平居中
-        // centerY 已经在 getTextFireworkConfig 中计算好了（标题上方）
+        // 使用烟花的爆炸位置作为文字中心
+        config.centerX = firework.x
+        config.centerY = firework.y
 
         firework.particles = createTextFireworkParticles(config)
       } else {

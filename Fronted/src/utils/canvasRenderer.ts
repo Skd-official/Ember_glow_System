@@ -1,264 +1,421 @@
-// ============================================================================
-// Canvas 烟花渲染器 - 真实烟花效果
-// 特性：从屏幕外升空、径向爆炸、发光拖尾、流畅60fps
-// ============================================================================
-
+// Canvas 渲染器 - 真实烟花效果
 import type { Firework, Particle } from '@/types'
+import { getHolidayTextConfig } from './holidayTextEffects'
 
-/**
- * 初始化 Canvas 上下文
- */
-export function initCanvasContext(
-  canvas: HTMLCanvasElement,
-  width: number,
-  height: number
-): {
-  ctx: CanvasRenderingContext2D
-  dpr: number
-  width: number
-  height: number
-} {
+export function initCanvasContext(canvas: HTMLCanvasElement, width: number, height: number) {
   const dpr = window.devicePixelRatio || 1
   const ctx = canvas.getContext('2d')!
-
   canvas.width = width * dpr
   canvas.height = height * dpr
   canvas.style.width = `${width}px`
   canvas.style.height = `${height}px`
   ctx.scale(dpr, dpr)
-
   return { ctx, dpr, width, height }
 }
 
-/**
- * 清空 Canvas 并绘制夜空背景
- */
-export function clearCanvas(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number
-): void {
-  // 深邃夜空渐变
+export function clearCanvas(ctx: CanvasRenderingContext2D, width: number, height: number): void {
   const gradient = ctx.createLinearGradient(0, 0, 0, height)
-  gradient.addColorStop(0, '#0a0a15')     // 顶部：深蓝黑
-  gradient.addColorStop(0.3, '#0d0d1a')   // 上部
-  gradient.addColorStop(0.7, '#111118')   // 下部
-  gradient.addColorStop(1, '#000000')     // 底部：纯黑
-
+  gradient.addColorStop(0, '#0a0a15')
+  gradient.addColorStop(0.3, '#0d0d1a')
+  gradient.addColorStop(0.7, '#111118')
+  gradient.addColorStop(1, '#000000')
   ctx.fillStyle = gradient
   ctx.fillRect(0, 0, width, height)
-
-  // 绘制星星
-  drawStars(ctx, width, height)
-}
-
-/**
- * 绘制星星背景
- */
-function drawStars(ctx: CanvasRenderingContext2D, width: number, height: number): void {
   let seed = 54321
-  const random = () => {
-    seed = (seed * 9301 + 49297) % 233280
-    return seed / 233280
-  }
-
+  const random = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280 }
   const starCount = Math.floor((width * height) / 12000)
-
   for (let i = 0; i < starCount; i++) {
-    const x = random() * width
-    const y = random() * height * 0.7
-    const radius = random() * 1.2
-    const opacity = 0.3 + random() * 0.5
-
-    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`
+    ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + random() * 0.5})`
     ctx.beginPath()
-    ctx.arc(x, y, radius, 0, Math.PI * 2)
+    ctx.arc(random() * width, random() * height * 0.7, random() * 1.2, 0, Math.PI * 2)
     ctx.fill()
   }
 }
 
-/**
- * 绘制升空中的烟花（发光弹头 + 拖尾）
- */
-function drawLaunchingFirework(
-  ctx: CanvasRenderingContext2D,
-  firework: Firework
-): void {
-  if (firework.currentLaunchY === undefined) return
-
-  const x = firework.x
-  const y = firework.currentLaunchY
-  const startY = firework.startY || (firework.y + firework.launchHeight)
-
-  // 计算升空进度
-  const totalDistance = startY - firework.y
-  const currentDistance = startY - y
-  const progress = currentDistance / totalDistance
-
-  // 主颜色（取烟花第一个颜色）
-  const mainColor = firework.colors[0] || '#FFD700'
-
-  // ===== 绘制拖尾 =====
-  const tailLength = Math.min(80 + progress * 60, y - firework.y)  // 拖尾长度随进度增加
-  const tailGradient = ctx.createLinearGradient(x, y, x, y + tailLength)
-  tailGradient.addColorStop(0, mainColor)
-  tailGradient.addColorStop(0.3, `${mainColor}AA`)
-  tailGradient.addColorStop(0.7, `${mainColor}44`)
-  tailGradient.addColorStop(1, 'transparent')
-
-  ctx.strokeStyle = tailGradient
+function drawLaunchingFirework(ctx: CanvasRenderingContext2D, fw: Firework): void {
+  if (fw.currentLaunchY === undefined) return
+  const x = fw.x, y = fw.currentLaunchY, mainColor = fw.colors[0] || '#FFD700'
+  const tailGrad = ctx.createLinearGradient(x, y, x, y + 80)
+  tailGrad.addColorStop(0, mainColor)
+  tailGrad.addColorStop(1, 'transparent')
+  ctx.strokeStyle = tailGrad
   ctx.lineWidth = 3
-  ctx.lineCap = 'round'
   ctx.beginPath()
   ctx.moveTo(x, y)
-  ctx.lineTo(x + (Math.random() - 0.5) * 2, y + tailLength)
+  ctx.lineTo(x, y + 80)
   ctx.stroke()
-
-  // ===== 绘制火花散射 =====
-  const sparkCount = 5 + Math.floor(Math.random() * 5)
-  for (let i = 0; i < sparkCount; i++) {
-    const sparkX = x + (Math.random() - 0.5) * 20
-    const sparkY = y + Math.random() * 30 + 10
-    const sparkSize = 1 + Math.random() * 2
-
-    ctx.fillStyle = `rgba(255, ${150 + Math.random() * 105}, 50, ${0.5 + Math.random() * 0.5})`
-    ctx.beginPath()
-    ctx.arc(sparkX, sparkY, sparkSize, 0, Math.PI * 2)
-    ctx.fill()
+  const glowGrad = ctx.createRadialGradient(x, y, 0, x, y, 15)
+  glowGrad.addColorStop(0, mainColor)
+  glowGrad.addColorStop(1, 'transparent')
+  ctx.fillStyle = glowGrad
+  ctx.beginPath()
+  ctx.arc(x, y, 15, 0, Math.PI * 2)
+  ctx.fill()
+  if (fw.displayText) {
+    ctx.globalAlpha = 0.6
+    ctx.fillStyle = mainColor
+    ctx.font = 'bold 14px Arial'
+    ctx.textAlign = 'center'
+    ctx.fillText('✨', x - 15, y - 20)
+    ctx.fillText('✨', x + 15, y - 20)
+    ctx.globalAlpha = 1
   }
+}
 
-  // ===== 绘制发光弹头 =====
-  // 外层光晕
-  const glowRadius = 15
-  const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, glowRadius)
-  glowGradient.addColorStop(0, `${mainColor}FF`)
-  glowGradient.addColorStop(0.3, `${mainColor}88`)
-  glowGradient.addColorStop(0.6, `${mainColor}33`)
-  glowGradient.addColorStop(1, 'transparent')
-
-  ctx.fillStyle = glowGradient
+function drawParticle(ctx: CanvasRenderingContext2D, p: Particle): void {
+  if (p.opacity <= 0.01) return
+  ctx.save()
+  ctx.globalAlpha = p.opacity
+  if (p.trail && p.trail.length > 1) {
+    const grad = ctx.createLinearGradient(p.x, p.y, p.trail[p.trail.length - 1].x, p.trail[p.trail.length - 1].y)
+    grad.addColorStop(0, p.color)
+    grad.addColorStop(1, 'transparent')
+    ctx.strokeStyle = grad
+    ctx.lineWidth = Math.max(1, p.size * 0.8)
+    ctx.beginPath()
+    ctx.moveTo(p.x, p.y)
+    for (let i = 1; i < Math.min(p.trail.length, 5); i++) {
+      ctx.lineTo(p.trail[i].x, p.trail[i].y)
+    }
+    ctx.stroke()
+  }
+  const glowGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3)
+  glowGrad.addColorStop(0, p.color)
+  glowGrad.addColorStop(1, 'transparent')
+  ctx.fillStyle = glowGrad
   ctx.beginPath()
-  ctx.arc(x, y, glowRadius, 0, Math.PI * 2)
+  ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2)
   ctx.fill()
-
-  // 核心亮点
-  ctx.fillStyle = '#FFFFFF'
+  ctx.fillStyle = p.color
   ctx.beginPath()
-  ctx.arc(x, y, 3, 0, Math.PI * 2)
+  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
   ctx.fill()
+  ctx.restore()
+}
+
+function drawFireworkTexts(ctx: CanvasRenderingContext2D, w: number, h: number, fireworks: Firework[], t: number): void {
+  for (const fw of fireworks) {
+    if (!fw.hasExploded || !fw.displayText) continue
+    const e = t - fw.explosionTime
+    if (e < 0 || e > 2000) continue
+    const prog = e / 2000
+    let op = 1
+    if (prog < 0.2) op = prog / 0.2
+    else if (prog > 0.8) op = (1 - prog) / 0.2
+
+    ctx.save()
+    ctx.globalAlpha = op
+
+    // 获取节日配置
+    const effectType = fw.colors && fw.colors.length > 0 ? fw.colors[0] : ''
+    const config = getHolidayTextConfig(effectType)
+
+    // 绘制文字外光晕
+    ctx.font = 'bold 52px "Noto Serif SC"'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillStyle = config.glowColor
+    ctx.globalAlpha = op * 0.4
+    for (let i = 0; i < 3; i++) {
+      ctx.fillText(fw.displayText, fw.x, fw.y - 80)
+    }
+
+    // 绘制文字主体
+    ctx.globalAlpha = op
+    ctx.fillStyle = config.textColor
+    ctx.fillText(fw.displayText, fw.x, fw.y - 80)
+
+    // 绘制文字外框（增强视觉效果）
+    ctx.strokeStyle = config.glowColor
+    ctx.lineWidth = 1.5
+    ctx.globalAlpha = op * 0.6
+    ctx.strokeText(fw.displayText, fw.x, fw.y - 80)
+
+    // 根据节日类型绘制特效
+    drawHolidayTextEffect(ctx, fw, prog, op, config.effectType)
+
+    ctx.restore()
+  }
 }
 
 /**
- * 绘制单个爆炸粒子（带线条轨迹效果）
- * 实现真实烟花的"火花线"效果
+ * 根据节日绘制特殊的文字特效
  */
-function drawParticle(ctx: CanvasRenderingContext2D, particle: Particle): void {
-  if (particle.opacity <= 0.01) return
-
-  const { x, y, size, color, opacity, trail } = particle
-
+function drawHolidayTextEffect(
+  ctx: CanvasRenderingContext2D,
+  fw: Firework,
+  progress: number,
+  opacity: number,
+  effectType: string
+): void {
   ctx.save()
 
-  // ===== 绘制轨迹线条 =====
-  if (trail && trail.length > 1) {
-    // 使用贝塞尔曲线绘制平滑轨迹
-    ctx.beginPath()
-    ctx.moveTo(x, y)
-
-    for (let i = 1; i < trail.length; i++) {
-      const point = trail[i]
-      const prevPoint = trail[i - 1]
-
-      // 使用二次贝塞尔曲线使轨迹更平滑
-      const cpX = (prevPoint.x + point.x) / 2
-      const cpY = (prevPoint.y + point.y) / 2
-      ctx.quadraticCurveTo(prevPoint.x, prevPoint.y, cpX, cpY)
-    }
-
-    // 创建轨迹渐变
-    const lastPoint = trail[trail.length - 1]
-    const gradient = ctx.createLinearGradient(x, y, lastPoint.x, lastPoint.y)
-    gradient.addColorStop(0, color)
-    gradient.addColorStop(0.3, `${color}CC`)
-    gradient.addColorStop(0.6, `${color}66`)
-    gradient.addColorStop(1, 'transparent')
-
-    ctx.strokeStyle = gradient
-    ctx.lineWidth = Math.max(1, size * 0.8)
-    ctx.lineCap = 'round'
-    ctx.globalAlpha = opacity
-    ctx.stroke()
-  }
-
-  // ===== 绘制粒子头部光点 =====
-  ctx.globalAlpha = opacity
-
-  // 外层光晕
-  if (opacity > 0.3) {
-    const glowSize = size * 3
-    const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, glowSize)
-    glowGradient.addColorStop(0, `${color}`)
-    glowGradient.addColorStop(0.3, `${color}88`)
-    glowGradient.addColorStop(0.6, `${color}33`)
-    glowGradient.addColorStop(1, 'transparent')
-
-    ctx.fillStyle = glowGradient
-    ctx.beginPath()
-    ctx.arc(x, y, glowSize, 0, Math.PI * 2)
-    ctx.fill()
-  }
-
-  // 粒子核心亮点
-  ctx.fillStyle = color
-  ctx.beginPath()
-  ctx.arc(x, y, size, 0, Math.PI * 2)
-  ctx.fill()
-
-  // 高亮度粒子添加白色核心
-  if (opacity > 0.5) {
-    ctx.fillStyle = '#FFFFFF'
-    ctx.globalAlpha = opacity * 0.8
-    ctx.beginPath()
-    ctx.arc(x, y, size * 0.5, 0, Math.PI * 2)
-    ctx.fill()
+  switch (effectType) {
+    case 'firecrackers':
+      drawFirecrackersEffect(ctx, fw, progress, opacity)
+      break
+    case 'lanterns':
+      drawLanternsEffect(ctx, fw, progress, opacity)
+      break
+    case 'zongzi_floating':
+      drawZongziFloatingEffect(ctx, fw, progress, opacity)
+      break
+    case 'starfall':
+      drawStarfallEffect(ctx, fw, progress, opacity)
+      break
+    case 'moonlight':
+      drawMoonlightEffect(ctx, fw, progress, opacity)
+      break
+    case 'labor_hammer':
+      drawLaborHammerEffect(ctx, fw, progress, opacity)
+      break
+    case 'flag_spread':
+      drawFlagSpreadEffect(ctx, fw, progress, opacity)
+      break
   }
 
   ctx.restore()
 }
 
 /**
- * 绘制所有粒子
+ * 春节/除夕特效：爆竹快速旋转
  */
-function drawAllParticles(ctx: CanvasRenderingContext2D, fireworks: Firework[]): void {
-  for (const firework of fireworks) {
-    for (const particle of firework.particles) {
-      drawParticle(ctx, particle)
-    }
+function drawFirecrackersEffect(ctx: CanvasRenderingContext2D, fw: Firework, progress: number, opacity: number): void {
+  const count = progress < 0.5 ? 10 : 8  // 前期多一些
+  const radius = 30 + progress * 60
+  const rotation = progress * Math.PI * 4  // 快速旋转
+
+  for (let i = 0; i < count; i++) {
+    const angle = (i * Math.PI * 2) / count + rotation
+    const x = fw.x + Math.cos(angle) * radius
+    const y = fw.y + Math.sin(angle) * radius - 80
+
+    ctx.globalAlpha = opacity * (1 - progress * 0.5)
+    ctx.fillStyle = '#FF0000'
+    ctx.beginPath()
+    ctx.arc(x, y, 5, 0, Math.PI * 2)
+    ctx.fill()
+
+    // 金色尾迹
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.6)'
+    ctx.beginPath()
+    ctx.arc(x - Math.cos(angle) * 8, y - Math.sin(angle) * 8 - 80, 2, 0, Math.PI * 2)
+    ctx.fill()
   }
 }
 
 /**
- * 主渲染函数
+ * 元宵特效：金色灯笼缓慢环绕展开
  */
-export function renderFrame(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  fireworks: Firework[],
-  currentTime: number,
-  _showHolidayWish: boolean = true
-): void {
-  // 1. 清空并绘制背景
-  clearCanvas(ctx, width, height)
+function drawLanternsEffect(ctx: CanvasRenderingContext2D, fw: Firework, progress: number, opacity: number): void {
+  const count = 14
+  const radius = 20 + progress * 50  // 缓慢扩散
+  const rotation = progress * Math.PI * 0.5  // 缓慢旋转
 
-  // 2. 绘制升空中的烟花
-  for (const firework of fireworks) {
-    if (!firework.hasExploded && firework.currentLaunchY !== undefined) {
-      drawLaunchingFirework(ctx, firework)
+  for (let i = 0; i < count; i++) {
+    const angle = (i * Math.PI * 2) / count + rotation
+    const x = fw.x + Math.cos(angle) * radius
+    const y = fw.y + Math.sin(angle) * radius - 80
+
+    // 灯笼光晕
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, 8)
+    grad.addColorStop(0, `rgba(255, 215, 0, ${opacity * 0.8})`)
+    grad.addColorStop(0.5, `rgba(255, 215, 0, ${opacity * 0.4})`)
+    grad.addColorStop(1, 'rgba(255, 215, 0, 0)')
+
+    ctx.fillStyle = grad
+    ctx.beginPath()
+    ctx.arc(x, y, 8, 0, Math.PI * 2)
+    ctx.fill()
+
+    // 灯笼中心
+    ctx.fillStyle = '#FFA500'
+    ctx.globalAlpha = opacity
+    ctx.beginPath()
+    ctx.arc(x, y, 3, 0, Math.PI * 2)
+    ctx.fill()
+  }
+}
+
+/**
+ * 端午特效：粽子上下浮动摇晃
+ */
+function drawZongziFloatingEffect(ctx: CanvasRenderingContext2D, fw: Firework, progress: number, opacity: number): void {
+  const count = 8
+  const baseRadius = 35
+
+  for (let i = 0; i < count; i++) {
+    const angle = (i * Math.PI * 2) / count
+
+    // 上下浮动 (使用 sin 波)
+    const floatY = Math.sin(progress * Math.PI * 3) * 15
+
+    // 左右摇晃 (使用 cos 波)
+    const swayX = Math.cos(progress * Math.PI * 2.5) * 10
+
+    const x = fw.x + Math.cos(angle) * baseRadius + swayX
+    const y = fw.y + Math.sin(angle) * baseRadius - 80 + floatY
+
+    // 粽子形状（两个三角形组成）
+    ctx.fillStyle = '#8B4513'  // 褐色
+    ctx.globalAlpha = opacity * 0.8
+    ctx.beginPath()
+    ctx.moveTo(x - 6, y - 6)
+    ctx.lineTo(x + 6, y - 6)
+    ctx.lineTo(x, y + 8)
+    ctx.closePath()
+    ctx.fill()
+
+    // 绿色叶子
+    ctx.fillStyle = '#228B22'
+    ctx.globalAlpha = opacity * 0.6
+    ctx.beginPath()
+    ctx.moveTo(x - 5, y - 4)
+    ctx.lineTo(x, y - 8)
+    ctx.lineTo(x + 5, y - 4)
+    ctx.closePath()
+    ctx.fill()
+  }
+}
+
+/**
+ * 七夕特效：星星从下向上飘落
+ */
+function drawStarfallEffect(ctx: CanvasRenderingContext2D, fw: Firework, progress: number, opacity: number): void {
+  const count = 24
+
+  for (let i = 0; i < count; i++) {
+    // 随机角度和速度
+    const seed = i * 12.9898 + progress * 78.233
+    const randomAngle = (Math.sin(seed) * 0.5 + 0.5) * Math.PI * 2
+
+    const upDistance = progress * 120  // 向上飘
+    const swayDistance = Math.sin(seed * 3.14159) * 30  // 左右摇晃
+
+    const x = fw.x + Math.cos(randomAngle) * 40 + swayDistance
+    const y = fw.y - 80 - upDistance + (Math.random() - 0.5) * 40
+
+    // 星星闪烁
+    const twinkle = Math.sin(progress * Math.PI * 6 + seed) * 0.5 + 0.5
+    ctx.globalAlpha = opacity * twinkle
+    ctx.fillStyle = '#DA70D6'
+    ctx.font = 'bold 18px Arial'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('✦', x, y)
+  }
+}
+
+/**
+ * 中秋特效：月光逐渐扩散
+ */
+function drawMoonlightEffect(ctx: CanvasRenderingContext2D, fw: Firework, progress: number, opacity: number): void {
+  // 多层月光波
+  for (let layer = 0; layer < 3; layer++) {
+    const delay = layer * 0.15
+    const adjustedProgress = Math.max(0, progress - delay)
+
+    if (adjustedProgress <= 0) continue
+
+    const radius = 40 + adjustedProgress * 80
+    const layerOpacity = opacity * Math.max(0, 1 - (adjustedProgress - 0.5) * 2) * (1 - layer * 0.3)
+
+    // 外圈光晕
+    const grad = ctx.createRadialGradient(fw.x, fw.y - 80, radius - 15, fw.x, fw.y - 80, radius + 15)
+    grad.addColorStop(0, 'rgba(65, 105, 225, 0)')
+    grad.addColorStop(0.5, `rgba(65, 105, 225, ${layerOpacity * 0.4})`)
+    grad.addColorStop(1, 'rgba(65, 105, 225, 0)')
+
+    ctx.fillStyle = grad
+    ctx.globalAlpha = 1
+    ctx.beginPath()
+    ctx.arc(fw.x, fw.y - 80, radius, 0, Math.PI * 2)
+    ctx.fill()
+
+    // 内圈亮白
+    const innerGrad = ctx.createRadialGradient(fw.x, fw.y - 80, Math.max(0, radius - 30), fw.x, fw.y - 80, radius - 10)
+    innerGrad.addColorStop(0, `rgba(255, 255, 255, ${layerOpacity * 0.3})`)
+    innerGrad.addColorStop(1, 'rgba(255, 255, 255, 0)')
+
+    ctx.fillStyle = innerGrad
+    ctx.beginPath()
+    ctx.arc(fw.x, fw.y - 80, radius - 10, 0, Math.PI * 2)
+    ctx.fill()
+  }
+}
+
+/**
+ * 劳动节特效：红黄镰锤交替闪烁
+ */
+function drawLaborHammerEffect(ctx: CanvasRenderingContext2D, fw: Firework, progress: number, opacity: number): void {
+  const count = 12
+  const radius = 35 + progress * 40
+
+  for (let i = 0; i < count; i++) {
+    const angle = (i * Math.PI * 2) / count
+    const x = fw.x + Math.cos(angle) * radius
+    const y = fw.y + Math.sin(angle) * radius - 80
+
+    // 交替显示红黄
+    const isRed = i % 2 === 0
+    const color = isRed ? '#FF0000' : '#FFDE00'
+
+    // 闪烁效果
+    const flicker = Math.sin(progress * Math.PI * 8 + i) * 0.5 + 0.5
+    ctx.globalAlpha = opacity * (0.5 + flicker * 0.5)
+    ctx.fillStyle = color
+
+    ctx.beginPath()
+    ctx.arc(x, y, 6, 0, Math.PI * 2)
+    ctx.fill()
+  }
+}
+
+/**
+ * 国庆节特效：红黄国旗色展开
+ */
+function drawFlagSpreadEffect(ctx: CanvasRenderingContext2D, fw: Firework, progress: number, opacity: number): void {
+  const count = 12
+  const radius = 25 + progress * 65
+
+  for (let i = 0; i < count; i++) {
+    const angle = (i * Math.PI * 2) / count
+    const x = fw.x + Math.cos(angle) * radius
+    const y = fw.y + Math.sin(angle) * radius - 80
+
+    // 红黄相间
+    const isRed = i % 2 === 0
+    const color = isRed ? '#FF0000' : '#FFDE00'
+
+    ctx.globalAlpha = opacity * (1 - progress * 0.3)
+    ctx.fillStyle = color
+
+    ctx.beginPath()
+    ctx.arc(x, y, 6, 0, Math.PI * 2)
+    ctx.fill()
+
+    // 外圈高亮
+    if (isRed) {
+      ctx.strokeStyle = '#FFD700'
+      ctx.lineWidth = 1
+      ctx.globalAlpha = opacity * 0.4
+      ctx.stroke()
     }
   }
+}
 
-  // 3. 绘制爆炸粒子
-  drawAllParticles(ctx, fireworks)
+export function renderFrame(ctx: CanvasRenderingContext2D, w: number, h: number, fws: Firework[], t: number): void {
+  clearCanvas(ctx, w, h)
+  for (const fw of fws) {
+    if (!fw.hasExploded && fw.currentLaunchY !== undefined) {
+      drawLaunchingFirework(ctx, fw)
+    }
+  }
+  for (const fw of fws) {
+    for (const p of fw.particles) {
+      drawParticle(ctx, p)
+    }
+  }
+  drawFireworkTexts(ctx, w, h, fws, t)
 }
 

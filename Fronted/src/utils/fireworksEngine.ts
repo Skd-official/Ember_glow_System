@@ -25,6 +25,15 @@ const FIREWORK_COLORS = [
   '#FFFFFF', '#FFFACD', '#F0FFFF'
 ]
 
+// 节日烟花的专属颜色库
+const HOLIDAY_COLOR_SETS: Record<string, string[]> = {
+  'red_fireworks': ['#FF0000', '#DC143C', '#B22222', '#FF4500', '#FFFFFF'],  // 春节、除夕
+  'golden_lantern': ['#FFD700', '#FFA500', '#FF8C00', '#FFAE42', '#FFFFFF'],  // 元宵
+  'dragon_red': ['#FF6347', '#DC143C', '#8B0000', '#FF4500', '#FFFFFF'],      // 端午
+  'magenta_romance': ['#FF1493', '#FF69B4', '#DDA0DD', '#EE82EE', '#FFFFFF'], // 七夕
+  'silver_moon': ['#E0E6FF', '#B0C4DE', '#87CEEB', '#B0E0E6', '#FFFFFF']      // 中秋
+}
+
 /**
  * 获取随机烟花颜色组合
  * 每朵烟花的颜色完全随机
@@ -210,8 +219,15 @@ export function generateFireworkParticles(
       return createWillowParticles(x, y, particleCount, force, colors)
     case 'peony':
       return createPeonyParticles(x, y, particleCount, force, colors)
+    case 'palm':
+      return createPalmParticles(x, y, particleCount, force, colors)
+    case 'crossette':
+      return createCrossetteParticles(x, y, particleCount, force, colors)
+    case 'star':
+      return createStarParticles(x, y, particleCount, force, colors)
+    case 'zongzi':
+      return createZongziParticles(x, y, particleCount, force, colors)
     case 'text':
-      // 文字烟花在 fireworksSequence.ts 中单独处理
       return createExplosionParticles(x, y, particleCount, force, colors)
     default:
       return createExplosionParticles(x, y, particleCount, force, colors)
@@ -342,30 +358,203 @@ function createPeonyParticles(
   return particles
 }
 
-// ============================================================================
-// 烟花对象创建 - 支持从屏幕外起飞
-// ============================================================================
+/**
+ * 棕榈型烟花 - 宽大散开，粒子密集
+ */
+function createPalmParticles(
+  x: number, y: number, count: number, force: number, colors: string[]
+): Particle[] {
+  const particles: Particle[] = []
+
+  // 多个方向的密集发射
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2
+    const speed = force * (0.6 + Math.random() * 0.7)
+    const color = colors[Math.floor(Math.random() * colors.length)]
+    const size = 2 + Math.random() * 3
+    particles.push(
+      createParticle(
+        x, y,
+        Math.cos(angle) * speed + (Math.random() - 0.5) * 50,
+        Math.sin(angle) * speed + (Math.random() - 0.5) * 50,
+        color,
+        size,
+        1 + Math.random() * 0.5
+      )
+    )
+  }
+
+  return particles
+}
 
 /**
- * 创建真实烟花对象
- * 从屏幕底部外侧起飞，飞入屏幕后爆炸
+ * 十字型烟花 - 十字方向爆炸
  */
+function createCrossetteParticles(
+  x: number, y: number, count: number, force: number, colors: string[]
+): Particle[] {
+  const particles: Particle[] = []
+
+  // 四个主方向 + 四个斜方向（十字）
+  const directions = [
+    { angle: 0 }, { angle: Math.PI / 2 }, { angle: Math.PI }, { angle: Math.PI * 3 / 2 },
+    { angle: Math.PI / 4 }, { angle: Math.PI * 3 / 4 }, { angle: Math.PI * 5 / 4 }, { angle: Math.PI * 7 / 4 }
+  ]
+
+  const particlesPerDirection = Math.floor(count / 8)
+  for (const dir of directions) {
+    for (let i = 0; i < particlesPerDirection; i++) {
+      const angleVariation = (Math.random() - 0.5) * 0.4
+      const angle = dir.angle + angleVariation
+      const speed = force * (0.8 + Math.random() * 0.4)
+      const color = colors[Math.floor(Math.random() * colors.length)]
+      particles.push(
+        createParticle(
+          x, y,
+          Math.cos(angle) * speed,
+          Math.sin(angle) * speed,
+          color,
+          2.5 + Math.random() * 2
+        )
+      )
+    }
+  }
+
+  return particles
+}
+
+/**
+ * 星形烟花 - 五星爆炸
+ */
+function createStarParticles(
+  x: number, y: number, count: number, force: number, colors: string[]
+): Particle[] {
+  const particles: Particle[] = []
+
+  // 五个方向形成五星
+  for (let i = 0; i < 5; i++) {
+    const angle = (i * Math.PI * 2) / 5  // 72度间隔
+    const particlesPerBranch = Math.floor(count / 5)
+
+    for (let j = 0; j < particlesPerBranch; j++) {
+      const angleVar = (Math.random() - 0.5) * 0.5
+      const speedVar = 0.7 + Math.random() * 0.6
+      const particleAngle = angle + angleVar
+      const speed = force * speedVar
+      const color = colors[Math.floor(Math.random() * colors.length)]
+
+      particles.push(
+        createParticle(
+          x, y,
+          Math.cos(particleAngle) * speed,
+          Math.sin(particleAngle) * speed,
+          color,
+          2 + Math.random() * 2.5
+        )
+      )
+    }
+  }
+
+  return particles
+}
+
+/**
+ * 粽子型烟花 - 端午专用，不规则散开
+ */
+function createZongziParticles(
+  x: number, y: number, count: number, force: number, colors: string[]
+): Particle[] {
+  const particles: Particle[] = []
+
+  // 模拟粽子形状 - 中心密集，周围不规则散开
+  const coreCount = Math.floor(count * 0.4)
+  const outerCount = count - coreCount
+
+  // 中心核心（密集）
+  for (let i = 0; i < coreCount; i++) {
+    const angle = Math.random() * Math.PI * 2
+    const speed = force * (0.3 + Math.random() * 0.4)
+    const color = colors[Math.floor(Math.random() * colors.length)]
+    particles.push(
+      createParticle(
+        x, y,
+        Math.cos(angle) * speed,
+        Math.sin(angle) * speed,
+        color,
+        3 + Math.random() * 2,
+        1.2
+      )
+    )
+  }
+
+  // 周围不规则散开
+  for (let i = 0; i < outerCount; i++) {
+    const angle = Math.random() * Math.PI * 2
+    const speed = force * (0.6 + Math.random() * 0.5)
+    const color = colors[Math.floor(Math.random() * colors.length)]
+    particles.push(
+      createParticle(
+        x, y,
+        Math.cos(angle) * speed + (Math.random() - 0.5) * 100,
+        Math.sin(angle) * speed + (Math.random() - 0.5) * 100,
+        color,
+        2 + Math.random() * 2,
+        1 + Math.random() * 0.3
+      )
+    )
+  }
+
+  return particles
+}
 export function createFirework(
   id: string,
   startTime: number,
   canvasWidth: number,
   canvasHeight: number,
-  _seed: number = Date.now()
+  _seed: number = Date.now(),
+  isTextFirework: boolean = false,           // 新增：是否为文字烟花
+  isHolidayFirework: boolean = false,        // 新增：是否为节日烟花
+  holidayEffectType?: string                 // 新增：节日效果类型（用于配色）
 ): Firework {
-  // 烟花类型随机
-  const types: FireworkType[] = ['bloom', 'ring', 'chrysanthemum', 'willow', 'peony']
-  const type = types[Math.floor(Math.random() * types.length)]
+  // 文字烟花和节日烟花的样式特殊化
+  let type: FireworkType
+  let explosionForce: number
+  let particleCount: number
+  let specialColors: string[] | undefined = undefined
+
+  if (isHolidayFirework && holidayEffectType) {
+    // 节日烟花：使用不同的烟花类型组合
+    let holidayTypes: FireworkType[] = ['peony', 'palm', 'crossette', 'bloom', 'ring']
+
+    // 端午节特殊处理：使用粽子形
+    if (holidayEffectType === 'dragon_red') {
+      holidayTypes = ['zongzi', 'zongzi', 'zongzi', 'peony', 'palm']  // 80%粽子形
+    }
+
+    type = holidayTypes[Math.floor(Math.random() * holidayTypes.length)]
+    explosionForce = 320 + Math.random() * 100
+    particleCount = 100 + Math.floor(Math.random() * 50)
+    specialColors = HOLIDAY_COLOR_SETS[holidayEffectType] || FIREWORK_COLORS
+  } else if (isTextFirework) {
+    // 文字烟花：使用绽放型或环形，金色系
+    type = Math.random() > 0.5 ? 'bloom' : 'ring'
+    explosionForce = 300 + Math.random() * 80
+    particleCount = 90 + Math.floor(Math.random() * 40)
+    specialColors = ['#FFD700', '#FFA500', '#FFFF00', '#FF8C00', '#FFFFFF']
+  } else {
+    // 普通烟花：所有类型随机组合（增加星形）
+    const types: FireworkType[] = ['bloom', 'ring', 'chrysanthemum', 'willow', 'peony', 'palm', 'crossette', 'star']
+    type = types[Math.floor(Math.random() * types.length)]
+    explosionForce = 280 + Math.random() * 120
+    particleCount = 80 + Math.floor(Math.random() * 40)
+  }
 
   // 水平位置：在屏幕宽度15%-85%范围内随机
   const x = canvasWidth * 0.15 + Math.random() * canvasWidth * 0.7
 
-  // 爆炸高度：屏幕高度的20%-55%处（从顶部算）
-  const explosionY = canvasHeight * 0.2 + Math.random() * canvasHeight * 0.35
+  // 爆炸高度：屏幕高度的15%-45%处（从顶部算，之前是20%-55%）
+  // 改为15%-45%使烟花飞得更高
+  const explosionY = canvasHeight * 0.15 + Math.random() * canvasHeight * 0.3
 
   // 起始位置：屏幕底部外侧（屏幕高度+额外距离）
   const startY = canvasHeight + 100 + Math.random() * 50
@@ -377,8 +566,8 @@ export function createFirework(
   // 显示时长
   const displayDuration = 2500 + Math.random() * 1500
 
-  // 随机颜色组合
-  const colors = getRandomFireworkColors()
+  // 随机颜色组合（文字烟花使用特殊颜色）
+  const colors = specialColors || getRandomFireworkColors()
 
   return {
     id,
@@ -390,8 +579,8 @@ export function createFirework(
     x,
     y: explosionY,
     launchHeight: distance,
-    explosionForce: 280 + Math.random() * 120,
-    particleCount: 100 + Math.floor(Math.random() * 80),
+    explosionForce,
+    particleCount,
     colors,
     particles: [],
     isFinished: false,

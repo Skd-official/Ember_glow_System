@@ -3,15 +3,19 @@
 // ============================================================================
 
 /**
- * 烟花类型枚举 - 真实烟花品种
+ * 烟花类型枚举 - 真实烟花品种（已扩展）
  * - bloom: 经典绽放型（球形爆炸）
  * - ring: 环形扩展（双环）
  * - chrysanthemum: 菊花型（长尾下垂）
  * - willow: 垂柳型（下垂拖尾）
  * - peony: 牡丹型（大而圆润）
+ * - palm: 棕榈型（宽大散开）
+ * - crossette: 十字型（交叉爆炸）
+ * - star: 星形型（五星爆炸）
+ * - zongzi: 粽子型（端午专用，不规则散开）
  * - text: 文字烟花（显示文字）
  */
-export type FireworkType = 'bloom' | 'ring' | 'chrysanthemum' | 'willow' | 'peony' | 'text'
+export type FireworkType = 'bloom' | 'ring' | 'chrysanthemum' | 'willow' | 'peony' | 'palm' | 'crossette' | 'star' | 'zongzi' | 'text'
 
 /**
  * 粒子历史轨迹点
@@ -41,10 +45,6 @@ export interface Particle {
   isTextParticle?: boolean
   targetX?: number
   targetY?: number
-  // 文字粒子下沉效果相关
-  hasReachedTarget?: boolean     // 是否已到达目标位置
-  sinkStartTime?: number         // 开始下沉的时间点（life值）
-  sinkDuration?: number          // 下沉持续时间
 }
 
 /**
