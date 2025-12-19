@@ -1,16 +1,23 @@
 // ============================================================================
-// 烟火漫游启动页 - 东方夜雀食堂风格
+// React 适配层 - FireworksLanding 组件
 // ============================================================================
 
 import React, { useEffect, useRef, useState } from 'react'
-import './styles.css'
+import '../styles/fireworks.css'
 
-import { generateFireworkSequence, generateFireworks, updateFireworks, isSequenceFinished, setCanvasSize } from '@/utils/fireworksSequence'
-import { renderFrame, initCanvasContext } from '@/utils/canvasRenderer'
-import type { Firework } from '@/types'
+import {
+  generateFireworkSequence,
+  generateFireworks,
+  updateFireworks,
+  isSequenceFinished,
+  setCanvasSize,
+  renderFrame,
+  initCanvasContext,
+  type Firework
+} from '../core'
 
 /**
- * 烟火漫游启动页
+ * React 烟火漫游启动页组件
  * 东方夜雀食堂风格设计
  */
 export const FireworksLanding: React.FC<{
@@ -28,12 +35,10 @@ export const FireworksLanding: React.FC<{
   const [showSubtitle, setShowSubtitle] = useState(false)
   const [showButton, setShowButton] = useState(false)
   const [showHint, setShowHint] = useState(false)
-  // 按钮出现即可交互
   const [canInteract, setCanInteract] = useState(false)
 
   // 初始化烟花系统
   useEffect(() => {
-    // 隐藏初始加载提示
     if (window.hideLoadingTip) {
       window.hideLoadingTip()
     }
@@ -45,38 +50,31 @@ export const FireworksLanding: React.FC<{
     const height = window.innerHeight
 
     const { ctx } = initCanvasContext(canvas, width, height)
-
-    // 设置画布尺寸供文字烟花使用
     setCanvasSize(width, height)
 
-    // 生成烟花序列
     const seq = generateFireworkSequence(width, height, 0)
     const fw = generateFireworks(seq, width, height, 0)
     fireworksRef.current = fw
 
     startTimeRef.current = performance.now()
 
-    // UI元素依次出现动画（总计约8秒）
-    setTimeout(() => setShowDecoration(true), 1000)   // 1秒后：花瓣装饰
-    setTimeout(() => setShowTitle(true), 2500)        // 2.5秒后：主标题
-    setTimeout(() => setShowSubtitle(true), 4500)     // 4.5秒后：英文副标题
+    // UI元素依次出现动画
+    setTimeout(() => setShowDecoration(true), 1000)
+    setTimeout(() => setShowTitle(true), 2500)
+    setTimeout(() => setShowSubtitle(true), 4500)
     setTimeout(() => {
       setShowButton(true)
-      setCanInteract(true)  // 按钮出现即可交互
-    }, 6000)                                          // 6秒后：按钮（立即可点击）
-    setTimeout(() => setShowHint(true), 7500)         // 7.5秒后：底部提示
+      setCanInteract(true)
+    }, 6000)
+    setTimeout(() => setShowHint(true), 7500)
 
     // 高性能动画循环
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTimeRef.current
 
-      // 更新烟花物理状态
       updateFireworks(fireworksRef.current, elapsed)
-
-      // 渲染帧
       renderFrame(ctx, width, height, fireworksRef.current, elapsed, false)
 
-      // 检查是否结束，结束后重新生成新序列（循环播放）
       if (isSequenceFinished(fireworksRef.current)) {
         const newSeq = generateFireworkSequence(width, height, 0)
         fireworksRef.current = generateFireworks(newSeq, width, height, 0)
@@ -88,7 +86,6 @@ export const FireworksLanding: React.FC<{
 
     animationFrameRef.current = requestAnimationFrame(animate)
 
-    // 窗口大小变化处理
     const handleResize = () => {
       const newWidth = window.innerWidth
       const newHeight = window.innerHeight
@@ -105,7 +102,6 @@ export const FireworksLanding: React.FC<{
     }
   }, [])
 
-  // 处理进入
   const handleEnter = () => {
     if (!canInteract) return
 
@@ -122,7 +118,6 @@ export const FireworksLanding: React.FC<{
     }
   }
 
-  // 键盘快捷键
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.key === 'Enter' || e.key === ' ') && canInteract) {
@@ -135,10 +130,8 @@ export const FireworksLanding: React.FC<{
 
   return (
     <div ref={containerRef} className="landing-container">
-      {/* 烟花 Canvas */}
       <canvas ref={canvasRef} className="fireworks-canvas" />
 
-      {/* 装饰性边框 */}
       <div className="decorative-frame">
         <div className="corner corner-tl" />
         <div className="corner corner-tr" />
@@ -146,18 +139,14 @@ export const FireworksLanding: React.FC<{
         <div className="corner corner-br" />
       </div>
 
-      {/* 主内容区域 */}
       <div className="content-wrapper">
-        {/* 标题区域 */}
         <div className="title-section">
-          {/* 装饰性樱花/花瓣 */}
           <div className={`title-decoration ${showDecoration ? 'visible' : ''}`}>
             <span className="petal petal-1">✿</span>
             <span className="petal petal-2">❀</span>
             <span className="petal petal-3">✿</span>
           </div>
 
-          {/* 主标题 */}
           <h1 className={`title-main ${showTitle ? 'visible' : ''}`}>
             <span className="title-char char-1">烟</span>
             <span className="title-char char-2">火</span>
@@ -165,7 +154,6 @@ export const FireworksLanding: React.FC<{
             <span className="title-char char-4">游</span>
           </h1>
 
-          {/* 英文副标题 */}
           <div className={`title-sub ${showSubtitle ? 'visible' : ''}`}>
             <span className="sub-line" />
             <h2 className="title-en">Ember Glow</h2>
@@ -173,7 +161,6 @@ export const FireworksLanding: React.FC<{
           </div>
         </div>
 
-        {/* 按钮区域 - 只有一个进入系统按钮 */}
         <div className={`button-section ${showButton ? 'visible' : ''}`}>
           <button
             className={`menu-button ${canInteract ? 'active' : ''}`}
@@ -184,7 +171,6 @@ export const FireworksLanding: React.FC<{
           </button>
         </div>
 
-        {/* 底部提示 */}
         <div className={`footer-hint ${showHint ? 'visible' : ''}`}>
           {canInteract ? '按 Enter 或点击按钮进入' : '系统加载中...'}
         </div>

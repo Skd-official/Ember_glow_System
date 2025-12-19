@@ -7,8 +7,12 @@ export default defineConfig({
   plugins: [vue(), cesium()],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src')
+      '@': resolve(__dirname, 'src'),
+      '@ember-glow/fireworks': resolve(__dirname, '../packages/@ember-glow/fireworks/src')
     }
+  },
+  optimizeDeps: {
+    include: ['@ember-glow/fireworks']
   },
   server: {
     port: 5173,

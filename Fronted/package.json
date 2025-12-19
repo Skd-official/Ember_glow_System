@@ -1,13 +1,21 @@
 {
-  "name": "ember-glow-fireworks",
+  "name": "ember-glow-monorepo",
   "version": "1.0.0",
-  "description": "赛博烟花启动页 - 烟火漫游项目",
+  "description": "赛博烟花启动页 - 烟火漫游 Monorepo 项目",
+  "private": true,
   "type": "module",
+  "workspaces": [
+    "packages/*",
+    "src",
+    "mainpage"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "dev:mainpage": "cd mainpage && npm run dev",
+    "build:mainpage": "cd mainpage && npm run build"
   },
   "dependencies": {
     "react": "^18.2.0",

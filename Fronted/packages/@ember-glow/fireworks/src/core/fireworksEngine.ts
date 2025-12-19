@@ -3,7 +3,7 @@
 // 特性：从屏幕外起飞、径向爆炸、多彩随机颜色、60fps流畅、起承转合节奏
 // ============================================================================
 
-import type { Firework, Particle, FireworkType } from '@/types'
+import type { Firework, Particle, FireworkType } from './types'
 
 // 丰富的烟花颜色库 - 每朵烟花随机选取
 const FIREWORK_COLORS = [

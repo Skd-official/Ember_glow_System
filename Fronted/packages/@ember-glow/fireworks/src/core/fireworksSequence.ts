@@ -4,7 +4,7 @@
 // 支持：文字烟花、节日祝福
 // ============================================================================
 
-import type { Firework, FireworkSequence } from '@/types'
+import type { Firework, FireworkSequence } from './types'
 import { createFirework, generateFireworkParticles, updateParticle } from './fireworksEngine'
 import { detectHoliday, getRandomWish } from './holidaySystem'
 import { getRandomText, formatTextWithLineBreaks, calculateMaxTextLineWidth } from './textFireworks'

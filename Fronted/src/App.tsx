@@ -3,28 +3,22 @@
 // ============================================================================
 
 import React from 'react'
-import FireworksLanding from '@/components/FireworksLanding'
+import { FireworksLanding } from '@ember-glow/fireworks/react'
 
 /**
  * 应用主组件
- * 
- * 当前只展示启动页
- * 
- * 集成步骤 (用于队友前端项目):
- * 1. 复制 src/components/FireworksLanding 目录到队友项目
- * 2. 复制 src/utils 目录中的工具文件到队友项目
- * 3. 复制 src/types.ts 到队友项目
- * 4. 在初始路由中这样使用：
- * 
- *    import FireworksLanding from '@/components/FireworksLanding'
- *    
+ *
+ * 现在使用共享包 @ember-glow/fireworks 中的组件
+ *
+ * 在你的项目中使用：
+ *    import { FireworksLanding } from '@ember-glow/fireworks/react'
+ *
  *    export default function InitialPage() {
  *      const navigate = useNavigate()
- *      
+ *
  *      return (
- *        <FireworksLanding 
+ *        <FireworksLanding
  *          onEnter={() => navigate('/home')}
- *          autoCloseTime={25000}
  *        />
  *      )
  *    }
@@ -42,7 +36,6 @@ function App() {
     <div>
       <FireworksLanding
         onEnter={handleEnter}
-        autoCloseTime={25000}  // 25秒后自动可点击
       />
     </div>
   )

@@ -38,7 +38,7 @@
         </div>
       </div>
 
-      <!-- 按钮区域 - 只有"进入系统"按钮 -->
+      <!-- 按钮区域 -->
       <div :class="['button-section', { visible: showButton }]">
         <button
           :class="['menu-button', { active: canInteract }]"
@@ -51,15 +51,14 @@
 
       <!-- 底部提示 -->
       <div :class="['footer-hint', { visible: showHint }]">
-        按 Enter 或点击按钮进入
+        {{ canInteract ? '按 Enter 或点击按钮进入' : '系统加载中...' }}
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 import {
   generateFireworkSequence,
   generateFireworks,
@@ -67,11 +66,22 @@ import {
   isSequenceFinished,
   setCanvasSize,
   renderFrame,
-  initCanvasContext
-} from '@ember-glow/fireworks/core'
+  initCanvasContext,
+  type Firework
+} from '../core'
+import '../styles/fireworks.css'
 
-const router = useRouter()
-const canvasRef = ref(null)
+interface Props {
+  onEnter?: () => void
+}
+
+const props = defineProps<Props>()
+
+const canvasRef = ref<HTMLCanvasElement | null>(null)
+const animationFrameRef = ref<number>()
+const startTimeRef = ref<number>(0)
+const fireworksRef = ref<Firework[]>([])
+
 const showDecoration = ref(false)
 const showTitle = ref(false)
 const showSubtitle = ref(false)
@@ -79,41 +89,16 @@ const showButton = ref(false)
 const showHint = ref(false)
 const canInteract = ref(false)
 
-let animationFrameId = null
-let canvasCtx = null
-let particles = []
-let fireworksRef = []
-let startTimeRef = 0
-
-function handleEnter() {
+const handleEnter = () => {
   if (!canInteract.value) return
-  canInteract.value = false
-  showDecoration.value = false
-  showTitle.value = false
-  showSubtitle.value = false
-  showButton.value = false
-  showHint.value = false
-  setTimeout(() => {
-    router.push('/main/map')
-  }, 300)
-}
-
-function handleKeyDown(e) {
-  if (e.key === 'Enter' && canInteract.value) {
-    handleEnter()
+  if (props.onEnter) {
+    props.onEnter()
   }
 }
 
-function handleResize() {
-  const canvas = canvasRef.value
-  if (!canvas) return
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-}
-
-function handleClick(e) {
-  if (canInteract.value && !e.target.closest('button')) {
-    // 可以在这里添加鼠标烟花效果
+const handleKeyDown = (e: KeyboardEvent) => {
+  if ((e.key === 'Enter' || e.key === ' ') && canInteract.value) {
+    handleEnter()
   }
 }
 
@@ -129,10 +114,11 @@ onMounted(() => {
 
   const seq = generateFireworkSequence(width, height, 0)
   const fw = generateFireworks(seq, width, height, 0)
-  fireworksRef = fw
-  startTimeRef = performance.now()
+  fireworksRef.value = fw
 
-  // UI动画时间表
+  startTimeRef.value = performance.now()
+
+  // UI元素依次出现动画
   setTimeout(() => {
     showDecoration.value = true
   }, 1000)
@@ -151,39 +137,44 @@ onMounted(() => {
   }, 7500)
 
   // 高性能动画循环
-  const animate = (currentTime) => {
-    const elapsed = currentTime - startTimeRef
+  const animate = (currentTime: number) => {
+    const elapsed = currentTime - startTimeRef.value
 
-    updateFireworks(fireworksRef, elapsed)
-    renderFrame(ctx, width, height, fireworksRef, elapsed, false)
+    updateFireworks(fireworksRef.value, elapsed)
+    renderFrame(ctx, width, height, fireworksRef.value, elapsed, false)
 
-    if (isSequenceFinished(fireworksRef)) {
+    if (isSequenceFinished(fireworksRef.value)) {
       const newSeq = generateFireworkSequence(width, height, 0)
-      fireworksRef = generateFireworks(newSeq, width, height, 0)
-      startTimeRef = performance.now()
+      fireworksRef.value = generateFireworks(newSeq, width, height, 0)
+      startTimeRef.value = performance.now()
     }
 
-    animationFrameId = requestAnimationFrame(animate)
+    animationFrameRef.value = requestAnimationFrame(animate)
   }
 
-  animationFrameId = requestAnimationFrame(animate)
+  animationFrameRef.value = requestAnimationFrame(animate)
 
-  window.addEventListener('click', handleClick)
-  window.addEventListener('keydown', handleKeyDown)
+  const handleResize = () => {
+    if (!canvas) return
+    const newWidth = window.innerWidth
+    const newHeight = window.innerHeight
+    initCanvasContext(canvas, newWidth, newHeight)
+  }
+
   window.addEventListener('resize', handleResize)
-})
+  window.addEventListener('keydown', handleKeyDown)
 
-onUnmounted(() => {
-  window.removeEventListener('click', handleClick)
-  window.removeEventListener('keydown', handleKeyDown)
-  window.removeEventListener('resize', handleResize)
-  if (animationFrameId) {
-    cancelAnimationFrame(animationFrameId)
-  }
+  onUnmounted(() => {
+    window.removeEventListener('resize', handleResize)
+    window.removeEventListener('keydown', handleKeyDown)
+    if (animationFrameRef.value) {
+      cancelAnimationFrame(animationFrameRef.value)
+    }
+  })
 })
 </script>
 
 <style scoped>
-/* 样式由 main.js 全局加载 */
+@import '../styles/fireworks.css';
 </style>
 

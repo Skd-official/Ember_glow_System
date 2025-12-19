@@ -1,5 +1,5 @@
 // Canvas 渲染器 - 真实烟花效果
-import type { Firework, Particle } from '@/types'
+import type { Firework, Particle } from './types'
 import { getHolidayTextConfig } from './holidayTextEffects'
 import { formatTextWithLineBreaks } from './textFireworks'
 

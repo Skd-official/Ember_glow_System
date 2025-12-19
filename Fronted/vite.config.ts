@@ -11,7 +11,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@ember-glow/fireworks': path.resolve(__dirname, './packages/@ember-glow/fireworks/src'),
     },
+  },
+  optimizeDeps: {
+    include: ['@ember-glow/fireworks']
   },
   server: {
     port: 3000,

@@ -9,10 +9,6 @@ import { detectChineseHolidayByLunar } from './lunarCalendar'
  * 测试用：硬编码测试日期（调试时使用）
  * 注释掉即为关闭，使用实际系统日期
  */
- /**
- * 测试用：硬编码测试日期（调试时使用）
- * 注释掉即为关闭，使用实际系统日期
- */
 const TEST_DATE: Date | null = null  // 关闭测试日期，使用系统日期
  //const TEST_DATE = new Date('2026-06-19')  // 端午节测试
  //const TEST_DATE = new Date('2026-10-01')  // 国庆测试

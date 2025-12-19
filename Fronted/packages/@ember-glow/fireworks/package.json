@@ -1,0 +1,44 @@
+{
+  "name": "@ember-glow/fireworks",
+  "version": "1.0.0",
+  "description": "Ember Glow Fireworks Landing Page - Shared Component Library",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./react": "./src/react/index.ts",
+    "./vue": "./src/vue/index.ts",
+    "./core": "./src/core/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "files": [
+    "src"
+  ],
+  "keywords": [
+    "fireworks",
+    "landing",
+    "react",
+    "vue",
+    "animation",
+    "ember-glow"
+  ],
+  "author": "Ember Glow Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "vue": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  }
+}
+
