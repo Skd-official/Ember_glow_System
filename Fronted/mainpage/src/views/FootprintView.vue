@@ -1,5 +1,9 @@
 <template>
   <div class="footprint-view">
+    <div class="view-header">
+      <img :src="footprintIcon" :alt="title" class="header-icon">
+      <h3>{{ title }}</h3>
+    </div>
     <div class="stats-header">
       <div class="stat-box">
         <span class="stat-num">{{ stats.cities }}</span>
@@ -57,7 +61,9 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
+import footprintIcon from '@/assets/icons/footprint.png'
 
+const title = '探索足迹'
 const stats = reactive({ cities: 3, spots: 12, distance: 45.6 })
 const footprints = ref([
   { id: 1, name: '宽窄巷子', address: '成都市青羊区', time: '2024-12-15 14:30' },
@@ -82,6 +88,27 @@ function submitCheckin() {
   padding: 24px;
   height: 100%;
   overflow-y: auto;
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(212, 165, 116, 0.3);
+}
+
+.header-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.view-header h3 {
+  margin: 0;
+  color: var(--color-brown);
+  font-size: 20px;
 }
 
 .stats-header {

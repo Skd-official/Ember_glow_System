@@ -11,6 +11,6 @@ html, body, #app {
   padding: 0;
   width: 100%;
   height: 100%;
-  font-family: 'Microsoft YaHei', sans-serif;
+  font-family: 'Noto Serif SC', 'STSong', 'SimSun', serif;
 }
 </style>
