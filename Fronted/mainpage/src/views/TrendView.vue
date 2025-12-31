@@ -1,5 +1,9 @@
 <template>
   <div class="trend-view">
+    <div class="view-header">
+      <img :src="trendIcon" :alt="title" class="header-icon">
+      <h3>{{ title }}</h3>
+    </div>
     <div class="trend-header">
       <h3>📊 夜光与烟火气趋势对比</h3>
       <div class="year-selector">
@@ -56,7 +60,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import * as echarts from 'echarts'
+import trendIcon from '@/assets/icons/trend.png'
 
+const title = '趋势对比'
 const selectedYear = ref('2024')
 const nightlightChart = ref(null)
 const vitalityChart = ref(null)
@@ -110,6 +116,27 @@ function initVitalityChart() {
   padding: 24px;
   height: 100%;
   overflow-y: auto;
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(212, 165, 116, 0.3);
+}
+
+.header-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.view-header h3 {
+  margin: 0;
+  color: var(--color-brown);
+  font-size: 20px;
 }
 
 .trend-header {

@@ -1,5 +1,9 @@
 <template>
   <div class="travelog-view">
+    <div class="view-header">
+      <img :src="travelogIcon" :alt="title" class="header-icon">
+      <h3>{{ title }}</h3>
+    </div>
     <div class="generate-section">
       <h3>📝 AI游记生成</h3>
       <p>选择你的路线或足迹，AI将为你生成一篇有温度的游记</p>
@@ -53,7 +57,9 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
+import travelogIcon from '@/assets/icons/travelog.png'
 
+const title = 'AI游记'
 const form = reactive({
   source: 'route',
   style: 'literary'
@@ -90,6 +96,27 @@ function save() {
   padding: 24px;
   height: 100%;
   overflow-y: auto;
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(212, 165, 116, 0.3);
+}
+
+.header-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.view-header h3 {
+  margin: 0;
+  color: var(--color-brown);
+  font-size: 20px;
 }
 
 .generate-section {

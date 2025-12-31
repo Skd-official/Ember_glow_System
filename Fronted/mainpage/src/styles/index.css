@@ -2,12 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 导入中国风书法字体 */
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@400;600;700&display=swap');
+
 :root {
+  /* ===== 中国风配色方案 ===== */
+  /* 主色 - 深红/朱红 */
   --color-primary: #8B2942;
-  --color-secondary: #D4A574;
-  --color-cream: #FFF5E6;
-  --color-brown: #5C3D2E;
-  --color-bg: #FAF3E8;
+  --color-primary-dark: #6B1D32;
+  --color-primary-light: #A83C55;
+
+  /* 米色/象牙白 */
+  --color-cream: #F5F0E6;
+  --color-cream-light: #FAF7F0;
+  --color-cream-dark: #E8E0D0;
+
+  /* 金色系 - 奢华感 */
+  --color-gold: #C9A962;
+  --color-gold-light: #D4BC7D;
+  --color-gold-dark: #A88B4A;
+
+  /* 深青蓝 - 点缀色 */
+  --color-teal: #2B5B6C;
+  --color-teal-light: #3D7A8C;
+  --color-teal-dark: #1E4250;
+
+  /* 棕色系 */
+  --color-brown: #5C4D3C;
+  --color-brown-light: #7A6B5A;
+  --color-brown-dark: #3D3228;
+
+  /* 背景色 */
+  --color-bg: #F8F4EB;
+  --color-bg-pattern: linear-gradient(45deg, rgba(201, 169, 98, 0.03) 25%, transparent 25%, transparent 75%, rgba(201, 169, 98, 0.03) 75%);
+
+  /* 文字色 */
+  --color-text: #3D3228;
+  --color-text-light: #6B5D4D;
+  --color-text-muted: #9A8B7A;
+
+  /* ===== 字体 ===== */
+  --font-display: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive;  /* 标题书法字体 */
+  --font-heading: 'ZCOOL XiaoWei', 'STZhongsong', serif;         /* 小标题 */
+  --font-body: 'Noto Serif SC', 'STSong', 'SimSun', serif;       /* 正文宋体 */
+  --font-english: 'Georgia', 'Times New Roman', serif;           /* 英文衬线 */
 }
 
 * {
@@ -17,12 +55,403 @@
 }
 
 body {
-  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  font-family: var(--font-body);
   background: var(--color-bg);
-  color: var(--color-brown);
+  color: var(--color-text);
+  /* 米色纹理背景 */
+  background-image:
+    var(--color-bg-pattern),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.01) 2px,
+      rgba(0,0,0,0.01) 4px
+    );
+  background-size: 20px 20px, 100% 100%;
 }
 
-/* Cesium 样式覆盖 */
+/* ===== 标题样式 ===== */
+.title-display {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  text-shadow: 2px 2px 0 var(--color-gold-light);
+}
+
+.title-heading {
+  font-family: var(--font-heading);
+  color: var(--color-brown-dark);
+}
+
+.text-english {
+  font-family: var(--font-english);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ===== 金色边框装饰 ===== */
+.border-gold {
+  border: 2px solid var(--color-gold);
+  box-shadow: inset 0 0 0 1px var(--color-gold-light);
+}
+
+.border-gold-double {
+  border: 3px double var(--color-gold);
+}
+
+/* ===== 中国风卡片 ===== */
+.card-chinese {
+  background: var(--color-cream);
+  border: 1px solid var(--color-gold);
+  border-radius: 4px;
+  position: relative;
+}
+
+.card-chinese::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 1px solid var(--color-gold-light);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* ===== 深红背景卡片 ===== */
+.card-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-cream);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(255,255,255,0.02) 10px,
+      rgba(255,255,255,0.02) 20px
+    );
+  pointer-events: none;
+}
+
+/* ===== 青蓝装饰 ===== */
+.accent-teal {
+  color: var(--color-teal);
+}
+
+.bg-teal {
+  background: var(--color-teal);
+  color: var(--color-cream);
+}
+
+/* ===== 按钮样式 ===== */
+.btn-chinese {
+  background: var(--color-primary);
+  color: var(--color-cream);
+  border: none;
+  padding: 10px 24px;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.btn-chinese::before,
+.btn-chinese::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--color-gold);
+}
+
+.btn-chinese::before {
+  top: 4px;
+  left: 4px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.btn-chinese::after {
+  bottom: 4px;
+  right: 4px;
+  border-left: none;
+  border-top: none;
+}
+
+.btn-chinese:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 41, 66, 0.3);
+}
+
+/* ===== 分隔线 ===== */
+.divider-chinese {
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--color-gold) 20%,
+    var(--color-gold) 80%,
+    transparent
+  );
+  position: relative;
+}
+
+.divider-chinese::before {
+  content: '◆';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--color-bg);
+  padding: 0 8px;
+  color: var(--color-gold);
+  font-size: 10px;
+}
+
+/* ===== 金色分割线 ===== */
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D4AF37 15%, #D4AF37 85%, transparent);
+  margin: 16px 0;
+}
+
+.divider-gold-thick {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #D4AF37 10%, #D4AF37 90%, transparent);
+  margin: 20px 0;
+  position: relative;
+}
+
+.divider-gold-thick::before,
+.divider-gold-thick::after {
+  content: '❖';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #D4AF37;
+  font-size: 8px;
+  background: var(--color-bg);
+  padding: 0 4px;
+}
+
+.divider-gold-thick::before {
+  left: 10%;
+}
+
+.divider-gold-thick::after {
+  right: 10%;
+}
+
+/* ===== 同心圆祥云纹装饰 ===== */
+.cloud-pattern {
+  position: relative;
+}
+
+.cloud-pattern::before {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 90px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 90' fill='none' stroke='%238B2942' stroke-width='1.2'%3E%3Ccircle cx='45' cy='50' r='30' stroke-dasharray='0 47 141'/%3E%3Ccircle cx='45' cy='50' r='22' stroke-dasharray='0 35 104'/%3E%3Ccircle cx='45' cy='50' r='14' stroke-dasharray='0 22 66'/%3E%3Ccircle cx='45' cy='50' r='7' stroke-dasharray='0 11 33'/%3E%3Ccircle cx='90' cy='40' r='22' stroke-dasharray='0 35 104'/%3E%3Ccircle cx='90' cy='40' r='15' stroke-dasharray='0 24 71'/%3E%3Ccircle cx='90' cy='40' r='8' stroke-dasharray='0 13 38'/%3E%3Cpath d='M75,50 Q100,65 150,60' stroke-width='1.5'/%3E%3Cpath d='M75,58 Q110,72 160,68' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+/* 四角云纹定位 */
+.cloud-corner-tl::before {
+  top: 10px;
+  left: 10px;
+}
+
+.cloud-corner-tr::after {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 90px;
+  top: 10px;
+  right: 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 90' fill='none' stroke='%238B2942' stroke-width='1.2'%3E%3Ccircle cx='45' cy='50' r='30' stroke-dasharray='0 47 141'/%3E%3Ccircle cx='45' cy='50' r='22' stroke-dasharray='0 35 104'/%3E%3Ccircle cx='45' cy='50' r='14' stroke-dasharray='0 22 66'/%3E%3Ccircle cx='45' cy='50' r='7' stroke-dasharray='0 11 33'/%3E%3Ccircle cx='90' cy='40' r='22' stroke-dasharray='0 35 104'/%3E%3Ccircle cx='90' cy='40' r='15' stroke-dasharray='0 24 71'/%3E%3Ccircle cx='90' cy='40' r='8' stroke-dasharray='0 13 38'/%3E%3Cpath d='M75,50 Q100,65 150,60' stroke-width='1.5'/%3E%3Cpath d='M75,58 Q110,72 160,68' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.1;
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+
+/* ===== 中国结装饰 ===== */
+.knot-decoration {
+  position: relative;
+}
+
+.knot-decoration::before,
+.knot-decoration::after {
+  content: '';
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60' fill='%23C9A962'%3E%3Ccircle cx='30' cy='30' r='25' fill='none' stroke='%23C9A962' stroke-width='2'/%3E%3Ccircle cx='30' cy='30' r='20' fill='none' stroke='%23C9A962' stroke-width='1.5'/%3E%3Cpath d='M20,30 L25,30 L25,25 L35,25 L35,35 L25,35 L25,30' fill='none' stroke='%23C9A962' stroke-width='2'/%3E%3Cpath d='M35,30 L40,30' fill='none' stroke='%23C9A962' stroke-width='2'/%3E%3Cpath d='M30,20 L30,25' fill='none' stroke='%23C9A962' stroke-width='2'/%3E%3Cpath d='M30,35 L30,40' fill='none' stroke='%23C9A962' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.knot-decoration::before {
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.knot-decoration::after {
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ===== 角落装饰纹样 ===== */
+.corner-decorations {
+  position: relative;
+}
+
+.corner-decorations::before,
+.corner-decorations::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  opacity: 0.12;
+}
+
+.corner-decorations::before {
+  top: 8px;
+  left: 8px;
+  border-top: 3px solid var(--color-primary);
+  border-left: 3px solid var(--color-primary);
+  background: linear-gradient(135deg, var(--color-gold) 0%, transparent 50%);
+  opacity: 0.15;
+}
+
+.corner-decorations::after {
+  bottom: 8px;
+  right: 8px;
+  border-bottom: 3px solid var(--color-primary);
+  border-right: 3px solid var(--color-primary);
+  background: linear-gradient(-45deg, var(--color-gold) 0%, transparent 50%);
+  opacity: 0.15;
+}
+
+/* 四角完整装饰 */
+.corner-all {
+  position: relative;
+}
+
+.corner-all .corner-tr,
+.corner-all .corner-bl {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+}
+
+.corner-all .corner-tr {
+  top: 8px;
+  right: 8px;
+  border-top: 3px solid var(--color-primary);
+  border-right: 3px solid var(--color-primary);
+  opacity: 0.15;
+}
+
+.corner-all .corner-bl {
+  bottom: 8px;
+  left: 8px;
+  border-bottom: 3px solid var(--color-primary);
+  border-left: 3px solid var(--color-primary);
+  opacity: 0.15;
+}
+
+/* ===== 几何双边框卡片 ===== */
+.card-double-border {
+  border: 3px solid var(--color-primary);
+  position: relative;
+  background: var(--color-cream);
+}
+
+.card-double-border::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  border: 2px solid var(--color-primary);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* 带金色内框的双边框 */
+.card-double-border-gold {
+  border: 3px solid var(--color-primary);
+  position: relative;
+  background: var(--color-cream);
+}
+
+.card-double-border-gold::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 1px solid #D4AF37;
+  pointer-events: none;
+}
+
+.card-double-border-gold::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  right: 7px;
+  bottom: 7px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  pointer-events: none;
+}
+
+/* ===== 回纹边框 ===== */
+.border-meander {
+  position: relative;
+  border: 2px solid var(--color-gold);
+}
+
+.border-meander::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border: 1px solid var(--color-gold);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ===== Cesium 样式覆盖 ===== */
 .cesium-viewer .cesium-widget-credits {
   display: none !important;
 }
@@ -31,21 +460,46 @@ body {
   display: none;
 }
 
-/* 自定义滚动条 */
+/* ===== 自定义滚动条 ===== */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-cream);
+  background: var(--color-cream-dark);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-secondary);
-  border-radius: 3px;
+  background: linear-gradient(180deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
+  border-radius: 4px;
+  border: 1px solid var(--color-cream);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary);
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+}
+
+/* ===== Element Plus 主题覆盖 ===== */
+.el-button--primary {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.el-button--primary:hover {
+  background: var(--color-primary-light) !important;
+  border-color: var(--color-primary-light) !important;
+}
+
+.el-slider__bar {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-gold)) !important;
+}
+
+.el-slider__button {
+  border-color: var(--color-primary) !important;
+}
+
+.el-select .el-input__wrapper:hover,
+.el-select .el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--color-gold) inset !important;
 }

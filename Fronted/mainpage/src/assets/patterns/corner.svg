@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="currentColor">
+  <!-- 角落装饰纹样 -->
+  <path d="M0,40 L0,30 Q0,20 10,20 L20,20 Q30,20 30,10 L30,0" fill="none" stroke="currentColor" stroke-width="2"/>
+  <path d="M0,35 L0,28 Q0,18 10,18 L18,18 Q28,18 28,8 L28,0" fill="none" stroke="currentColor" stroke-width="1"/>
+  <!-- 小圆点装饰 -->
+  <circle cx="5" cy="25" r="2"/>
+  <circle cx="15" cy="15" r="2"/>
+  <circle cx="25" cy="5" r="2"/>
+</svg>
+
