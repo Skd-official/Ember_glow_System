@@ -1,0 +1,19 @@
+{
+  "viirs_nightlight": {
+    "name": "NASA VIIRS Nighttime Lights",
+    "source": "NOAA NPP-VIIRS DNB Monthly V21",
+    "description": "全国夜光遥感数据（2015/2020/2024年）",
+    "spatial_extent": {
+      "north": 53,
+      "south": 18,
+      "east": 135,
+      "west": 73,
+      "crs": "EPSG:4326"
+    },
+    "resolution": {
+      "meters": 500
+    },
+    "units": "nanoWatts/cm²/sr",
+    "years_available": [2015, 2020, 2024]
+  }
+}

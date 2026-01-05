@@ -1,0 +1,39 @@
+{
+  "years_data": [
+    {
+      "year": 2015,
+      "avg_radiance": 2.367887496948242,
+      "max_radiance": 2926.0341796875,
+      "min_radiance": 0.0008909473544918001,
+      "std_radiance": 6.773636341094971,
+      "lit_pixel_count": 12492272,
+      "total_pixel_count": 124992000,
+      "lit_area_ratio": 0.09994457245263696
+    },
+    {
+      "year": 2020,
+      "avg_radiance": 2.858138084411621,
+      "max_radiance": 10171.2578125,
+      "min_radiance": 0.15476877987384796,
+      "std_radiance": 9.864712715148926,
+      "lit_pixel_count": 14657523,
+      "total_pixel_count": 124992000,
+      "lit_area_ratio": 0.11726768913210446
+    },
+    {
+      "year": 2024,
+      "avg_radiance": 3.2671923637390137,
+      "max_radiance": 5590.04736328125,
+      "min_radiance": 0.0010900169145315886,
+      "std_radiance": 8.78623104095459,
+      "lit_pixel_count": 16297794,
+      "total_pixel_count": 124992000,
+      "lit_area_ratio": 0.13039069700460829
+    }
+  ],
+  "overall_change": {
+    "change_rate": 0.38,
+    "trend": "rising",
+    "period": "2015-2024"
+  }
+}
